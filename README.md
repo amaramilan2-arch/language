@@ -91,6 +91,13 @@ Chaque fusion sur `main` reconstruit et republie le site automatiquement. Le
 chemin racine est fourni par la variable `BASE_PATH` : le site vit sous
 `/language/` sur GitHub Pages, à la racine en local.
 
+Le workflow active GitHub Pages de lui-même à sa première exécution. Une
+contrainte demeure, indépendante du code : **GitHub Pages n'est pas disponible
+sur un dépôt privé en formule gratuite.** Le dépôt doit être public, ou le
+compte passé en GitHub Pro. Publier le dépôt n'expose que le code — la
+progression reste dans le navigateur de chacun, et n'est jamais envoyée nulle
+part.
+
 ## Organisation
 
 ```
