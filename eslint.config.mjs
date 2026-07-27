@@ -35,9 +35,16 @@ export default [
     },
   },
   {
-    files: ['**/*.test.ts', '**/e2e/**/*.mjs'],
+    // Scripts et tests : ils tournent sous Node, où `process` et `console`
+    // existent, et où afficher dans le terminal est le comportement attendu.
+    files: ['**/*.test.ts', '**/e2e/**/*.mjs', '**/scripts/**/*.mjs'],
     languageOptions: {
-      globals: { process: 'readonly', console: 'readonly' },
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        URL: 'readonly',
+        Buffer: 'readonly',
+      },
     },
     rules: { 'no-console': 'off' },
   },
