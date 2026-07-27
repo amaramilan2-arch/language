@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      # Les types d'abord : une erreur de type rend le reste des résultats
+      # ininterprétable, autant échouer tout de suite.
+      - name: Vérifier les types
+        run: npm run typecheck
+
+      # Le moteur et le contenu. La validation des packs bloque volontairement
+      # la fusion : une traduction manquante ou un identifiant en double doit
+      # casser la construction, pas atterrir devant l'apprenant.
+      - name: Tests unitaires et validation du contenu
+        run: npm test
+
+      - name: Construire la PWA
+        run: npm run build
