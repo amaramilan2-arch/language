@@ -160,7 +160,6 @@ describe('rapport de qualité', () => {
         avertissements: warnings.length,
       };
     });
-    // eslint-disable-next-line no-console
     console.table(report);
     expect(report.every((row) => row.éléments >= 100)).toBe(true);
   });

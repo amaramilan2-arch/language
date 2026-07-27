@@ -30,5 +30,8 @@ jobs:
       - name: Tests unitaires et validation du contenu
         run: npm test
 
+      - name: Analyse statique
+        run: npm run lint
+
       - name: Construire la PWA
         run: npm run build
