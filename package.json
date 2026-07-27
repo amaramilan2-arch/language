@@ -1,0 +1,34 @@
+{
+  "name": "polyglotte",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Application d'apprentissage des langues pour francophones — anglais, espagnol, arabe tunisien, italien",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@polyglotte/web",
+    "build": "npm run build --workspace=@polyglotte/core && npm run build --workspace=@polyglotte/content && npm run build --workspace=@polyglotte/web",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --build --force",
+    "lint": "eslint .",
+    "content:check": "npm run check --workspace=@polyglotte/content",
+    "e2e": "node apps/web/e2e/smoke.mjs",
+    "preview": "npm run preview --workspace=@polyglotte/web"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@types/node": "^22.10.2",
+    "@typescript-eslint/eslint-plugin": "^8.19.0",
+    "@typescript-eslint/parser": "^8.19.0",
+    "eslint": "^9.17.0",
+    "playwright": "^1.62.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
