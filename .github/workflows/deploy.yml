@@ -32,20 +32,21 @@ jobs:
       - name: Installer les dépendances
         run: npm ci
 
-      # `enablement: true` active GitHub Pages à la première exécution, ce qui
-      # évite d'avoir à le faire à la main dans les réglages du dépôt. Sans
-      # cela, l'action échoue par un « Not Found » peu parlant tant que Pages
-      # n'a pas été activé.
+      # Prérequis, à faire une seule fois et à la main :
+      #   Settings → Pages → Source → « GitHub Actions ».
       #
-      # À noter : GitHub Pages n'est pas disponible sur un dépôt privé en
-      # formule gratuite. Sur un dépôt privé sans abonnement, cette étape
-      # échouera quoi qu'il arrive — le dépôt doit être public, ou le compte
-      # passé en GitHub Pro.
+      # `enablement: true` a été essayé pour automatiser ce réglage : la
+      # création d'un site Pages par l'API exige des droits d'administration
+      # que le GITHUB_TOKEN des Actions ne porte pas, quelles que soient les
+      # permissions déclarées ci-dessus. L'action échoue alors sur
+      # « Resource not accessible by integration ». Une fois Pages activé,
+      # cette étape se contente de lire la configuration, ce qui passe.
+      #
+      # Second prérequis : GitHub Pages n'existe pas sur un dépôt privé en
+      # formule gratuite. Le dépôt doit être public, ou le compte en Pro.
       - name: Configurer GitHub Pages
         id: pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       # Le site est servi sous le nom du dépôt, pas à la racine du domaine.
       # `base_path` est fourni par l'étape précédente, ce qui évite de coder le
