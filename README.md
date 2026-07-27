@@ -91,12 +91,15 @@ Chaque fusion sur `main` reconstruit et republie le site automatiquement. Le
 chemin racine est fourni par la variable `BASE_PATH` : le site vit sous
 `/language/` sur GitHub Pages, à la racine en local.
 
-Le workflow active GitHub Pages de lui-même à sa première exécution. Une
-contrainte demeure, indépendante du code : **GitHub Pages n'est pas disponible
-sur un dépôt privé en formule gratuite.** Le dépôt doit être public, ou le
-compte passé en GitHub Pro. Publier le dépôt n'expose que le code — la
-progression reste dans le navigateur de chacun, et n'est jamais envoyée nulle
-part.
+Deux prérequis, à satisfaire une seule fois :
+
+1. **Le dépôt doit être public** — GitHub Pages n'existe pas sur un dépôt privé
+   en formule gratuite. Publier le dépôt n'expose que le code : la progression
+   reste dans le navigateur de chacun et n'est jamais envoyée nulle part.
+2. **Activer Pages à la main** : `Settings` → `Pages` → `Source` →
+   « GitHub Actions ». Cette étape ne peut pas être automatisée — créer un site
+   Pages par l'API demande des droits d'administration que le jeton des Actions
+   ne porte pas.
 
 ## Organisation
 
