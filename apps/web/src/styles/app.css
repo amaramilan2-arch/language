@@ -1,0 +1,561 @@
+/*
+ * Système de design de Polyglotte.
+ *
+ * CSS écrit à la main, sans framework. Sur un projet destiné à durer, une
+ * dépendance de mise en page est une dette : elle impose des montées de version
+ * et finit par dicter l'apparence. Ici, tout tient dans un fichier et rien ne
+ * cassera dans un an.
+ *
+ * Deux contraintes gouvernent les choix visuels :
+ *  - Utilisable d'une seule main, sur téléphone. Réviser se fait debout dans le
+ *    métro, pas assis à un bureau. Les commandes vivent en bas de l'écran.
+ *  - Confortable le soir. Thème sombre par défaut, contrastes tenus mais sans
+ *    blanc pur sur noir pur, qui fatigue au bout de dix minutes.
+ */
+
+:root {
+  --bg: #1a1b26;
+  --bg-raised: #212232;
+  --bg-overlay: #2a2b3d;
+  --border: #32344a;
+  --text: #c8cce0;
+  --text-strong: #eceff4;
+  --text-muted: #7f86a3;
+
+  --accent: #7aa2f7;
+  --accent-strong: #9ab8ff;
+  --success: #7bd88f;
+  --success-bg: rgba(123, 216, 143, 0.12);
+  --warning: #e0af68;
+  --warning-bg: rgba(224, 175, 104, 0.12);
+  --danger: #f38ba8;
+  --danger-bg: rgba(243, 139, 168, 0.12);
+
+  --radius: 14px;
+  --radius-sm: 9px;
+  --gap: 16px;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-arabic: 'Noto Naskh Arabic', 'Geeza Pro', 'Segoe UI', serif;
+
+  --max-width: 640px;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f6f7fb;
+    --bg-raised: #ffffff;
+    --bg-overlay: #eef0f7;
+    --border: #dfe3ee;
+    --text: #333a52;
+    --text-strong: #171a26;
+    --text-muted: #6b7290;
+    --accent: #3c5fd4;
+    --accent-strong: #2b47ad;
+    --success: #2f8f4e;
+    --success-bg: rgba(47, 143, 78, 0.1);
+    --warning: #a86c12;
+    --warning-bg: rgba(168, 108, 18, 0.1);
+    --danger: #c2405f;
+    --danger-bg: rgba(194, 64, 95, 0.1);
+    --shadow: 0 6px 18px rgba(20, 25, 50, 0.08);
+    color-scheme: light;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  /* Empêche le zoom accidentel par double-tape pendant une session rapide. */
+  touch-action: manipulation;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--text-strong);
+  line-height: 1.25;
+  margin: 0;
+}
+h1 { font-size: 1.6rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1rem; }
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+/* Toujours visible au clavier, jamais parasite à la souris. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* --- Structure ---------------------------------------------------------- */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  /* `env(safe-area-inset-*)` : évite que la barre de navigation passe sous
+     l'indicateur d'accueil des iPhone récents. */
+  padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+}
+
+.page {
+  flex: 1;
+  padding: var(--gap);
+  padding-top: calc(var(--gap) + env(safe-area-inset-top, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+  background: color-mix(in srgb, var(--bg-raised) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+}
+
+.nav__item {
+  flex: 1;
+  max-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 4px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+.nav__item[aria-current='page'] {
+  color: var(--accent);
+  background: var(--bg-overlay);
+}
+.nav__icon { font-size: 1.15rem; line-height: 1; }
+
+/* --- Blocs -------------------------------------------------------------- */
+
+.card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--gap);
+}
+
+.card--interactive {
+  display: block;
+  width: 100%;
+  text-align: left;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+.card--interactive:hover { border-color: var(--accent); }
+.card--interactive:active { transform: scale(0.985); }
+
+.stack { display: flex; flex-direction: column; gap: var(--gap); }
+.stack--tight { gap: 8px; }
+.row { display: flex; align-items: center; gap: 12px; }
+.row--between { justify-content: space-between; }
+.row--wrap { flex-wrap: wrap; }
+.grow { flex: 1; }
+
+.muted { color: var(--text-muted); font-size: 0.875rem; }
+.center { text-align: center; }
+
+/* --- Boutons ------------------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  /* 48 px : la cible tactile minimale confortable au pouce. */
+  min-height: 48px;
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-overlay);
+  color: var(--text-strong);
+  font-weight: 600;
+  border: 1px solid var(--border);
+  transition: filter 0.12s ease, transform 0.12s ease;
+}
+.btn:hover:not(:disabled) { filter: brightness(1.12); }
+.btn:active:not(:disabled) { transform: scale(0.97); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #10121c;
+}
+.btn--success { background: var(--success); border-color: var(--success); color: #0d1a12; }
+.btn--danger { background: var(--danger); border-color: var(--danger); color: #1c0d13; }
+.btn--ghost { background: transparent; }
+.btn--block { width: 100%; }
+.btn--lg { min-height: 56px; font-size: 1.05rem; }
+
+/* --- Barre de progression ----------------------------------------------- */
+
+.progress {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--bg-overlay);
+  overflow: hidden;
+}
+.progress__fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+/* --- Étiquettes --------------------------------------------------------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--bg-overlay);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.badge--accent { background: rgba(122, 162, 247, 0.16); color: var(--accent); }
+.badge--success { background: var(--success-bg); color: var(--success); }
+.badge--warning { background: var(--warning-bg); color: var(--warning); }
+.badge--danger { background: var(--danger-bg); color: var(--danger); }
+
+/* --- Texte en langue cible ---------------------------------------------- */
+
+.target {
+  font-size: 2rem;
+  font-weight: 650;
+  color: var(--text-strong);
+  line-height: 1.3;
+  word-break: break-word;
+}
+.target--sm { font-size: 1.25rem; }
+
+/* L'arabe a besoin de plus de hauteur : les diacritiques et les hampes sont
+   tronqués aux interlignes serrés qui conviennent à l'alphabet latin. */
+.target--rtl {
+  direction: rtl;
+  font-family: var(--font-arabic);
+  line-height: 1.85;
+  font-size: 2.3rem;
+}
+
+.translit {
+  color: var(--text-muted);
+  font-size: 1rem;
+  font-style: italic;
+  letter-spacing: 0.01em;
+}
+
+.note {
+  padding: 10px 12px;
+  border-left: 3px solid var(--warning);
+  background: var(--warning-bg);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 0.875rem;
+}
+
+/* --- Exercices ---------------------------------------------------------- */
+
+.exercise {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  flex: 1;
+}
+
+.prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex: 1;
+  min-height: 180px;
+  padding: 24px var(--gap);
+  text-align: center;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.choices { display: flex; flex-direction: column; gap: 10px; }
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 16px;
+  text-align: left;
+  background: var(--bg-raised);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-strong);
+  font-size: 1.05rem;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.choice:hover:not(:disabled) { border-color: var(--accent); }
+.choice--correct { border-color: var(--success); background: var(--success-bg); }
+.choice--wrong { border-color: var(--danger); background: var(--danger-bg); }
+.choice:disabled { cursor: default; }
+
+.choice__key {
+  display: none;
+  min-width: 22px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+/* Les raccourcis clavier n'ont de sens qu'avec un clavier. */
+@media (min-width: 720px) {
+  .choice__key { display: block; }
+}
+
+.input {
+  width: 100%;
+  min-height: 56px;
+  padding: 14px 16px;
+  background: var(--bg-raised);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-strong);
+  font-size: 1.15rem;
+  font-family: inherit;
+}
+.input:focus { outline: none; border-color: var(--accent); }
+.input--rtl { direction: rtl; font-family: var(--font-arabic); }
+.input--correct { border-color: var(--success); }
+.input--wrong { border-color: var(--danger); }
+
+/* --- Reconstitution de phrase ------------------------------------------- */
+
+.tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 56px;
+  padding: 10px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-sm);
+  align-content: flex-start;
+}
+.tokens--rtl { direction: rtl; }
+.tokens--filled { border-style: solid; }
+
+.token {
+  padding: 9px 14px;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-strong);
+  font-size: 1.05rem;
+  transition: transform 0.1s ease;
+}
+.token:active { transform: scale(0.94); }
+.token--used { opacity: 0.25; pointer-events: none; }
+
+/* --- Retour après réponse ----------------------------------------------- */
+
+.feedback {
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+}
+.feedback--correct { background: var(--success-bg); border: 1px solid var(--success); }
+.feedback--wrong { background: var(--danger-bg); border: 1px solid var(--danger); }
+.feedback--info { background: var(--warning-bg); border: 1px solid var(--warning); }
+
+.ratings { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.rating {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 62px;
+  padding: 8px 4px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+.rating small { color: var(--text-muted); font-weight: 400; font-size: 0.7rem; }
+.rating--again:hover { border-color: var(--danger); }
+.rating--hard:hover { border-color: var(--warning); }
+.rating--good:hover { border-color: var(--success); }
+.rating--easy:hover { border-color: var(--accent); }
+
+/* --- Bouton audio ------------------------------------------------------- */
+
+.audio-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #10121c;
+  font-size: 1.6rem;
+  border: none;
+  box-shadow: var(--shadow);
+}
+.audio-btn--sm { width: 44px; height: 44px; font-size: 1.1rem; }
+.audio-btn:disabled { opacity: 0.4; }
+.audio-btn--playing { animation: pulse 1.2s ease-in-out infinite; }
+
+.mic-btn {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: var(--bg-overlay);
+  border: 3px solid var(--accent);
+  color: var(--accent);
+  font-size: 2rem;
+}
+.mic-btn--recording {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.07); }
+}
+
+/* --- Statistiques ------------------------------------------------------- */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.stat { padding: 14px; background: var(--bg-raised); border: 1px solid var(--border); border-radius: var(--radius); }
+.stat__value {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  line-height: 1.1;
+  /* Certaines valeurs sont textuelles (« 12 min », « 3 / 120 ») et bien plus
+     longues qu'un nombre : elles doivent rétrécir plutôt que déborder. */
+  overflow-wrap: anywhere;
+  font-size: clamp(1.1rem, 7vw, 1.7rem);
+}
+.stat__label { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+
+.bars { display: flex; align-items: flex-end; gap: 3px; height: 96px; }
+.bars__col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
+.bars__bar { background: var(--accent); border-radius: 3px 3px 0 0; min-height: 2px; }
+.bars__bar--today { background: var(--warning); }
+
+.skill-row { display: flex; flex-direction: column; gap: 6px; }
+.skill-bar { display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: var(--bg-overlay); }
+.skill-bar__seg--mastered { background: var(--success); }
+.skill-bar__seg--solid { background: var(--accent); }
+.skill-bar__seg--learning { background: var(--warning); }
+
+/* --- Divers ------------------------------------------------------------- */
+
+.empty { padding: 40px 20px; text-align: center; color: var(--text-muted); }
+.empty__icon { font-size: 2.6rem; margin-bottom: 10px; }
+
+.switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; }
+.switch + .switch { border-top: 1px solid var(--border); }
+
+.toggle {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border);
+  transition: background 0.15s ease;
+}
+.toggle[aria-checked='true'] { background: var(--accent); border-color: var(--accent); }
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--text-strong);
+  transition: transform 0.15s ease;
+}
+.toggle[aria-checked='true']::after { transform: translateX(20px); background: #10121c; }
+
+.slider { width: 100%; accent-color: var(--accent); }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Respecte le réglage système : les animations peuvent provoquer un malaise
+   chez certaines personnes, et une app de révision quotidienne les répète
+   des centaines de fois. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

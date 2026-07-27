@@ -8,3 +8,4 @@ coverage/
 .env.local
 .vite/
 *.log
+e2e-screenshots/
