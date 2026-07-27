@@ -55,7 +55,19 @@ la derja. L'application le détecte, l'annonce, et bascule sur l'auto-évaluatio
 plutôt que de produire des exercices muets. C'est une limite réelle, documentée
 dans [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
-## Démarrer
+## Utiliser l'application
+
+**En ligne :** https://amaramilan2-arch.github.io/language/
+
+C'est une PWA : sur téléphone, le menu du navigateur propose « Ajouter à
+l'écran d'accueil ». Elle s'installe alors comme une application normale et
+fonctionne ensuite sans réseau. C'est l'usage pour lequel elle est conçue —
+réviser dans les transports.
+
+Votre progression reste sur votre appareil, y compris en ligne : rien n'est
+envoyé nulle part, et il n'y a pas de compte à créer.
+
+## Développer
 
 ```bash
 npm install
@@ -74,6 +86,10 @@ npm run e2e          # parcours de bout en bout dans un vrai navigateur
 
 Le parcours de bout en bout requiert un navigateur Playwright
 (`npx playwright install chromium`) et une prévisualisation déjà lancée.
+
+Chaque fusion sur `main` reconstruit et republie le site automatiquement. Le
+chemin racine est fourni par la variable `BASE_PATH` : le site vit sous
+`/language/` sur GitHub Pages, à la racine en local.
 
 ## Organisation
 
