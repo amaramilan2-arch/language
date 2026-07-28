@@ -82,11 +82,24 @@ export const DEFAULT_SETTINGS: Settings = {
   updatedAt: 0,
 };
 
+/** Trace d'un dialogue travaillé, pour ne pas toujours reproposer le même. */
+export interface DialogueRecord {
+  id: string;
+  language: LanguageCode;
+  /** Nombre de fois où le dialogue a été fait. */
+  attempts: number;
+  /** Meilleur score obtenu, en nombre de bonnes réponses. */
+  bestCorrect: number;
+  totalQuestions: number;
+  lastSeenAt: number;
+}
+
 export class PolyglotteDatabase extends Dexie {
   memories!: Table<StoredMemory, string>;
   logs!: Table<StoredLog, number>;
   days!: Table<DayRecord, string>;
   settings!: Table<Settings, string>;
+  dialogues!: Table<DialogueRecord, string>;
 
   constructor() {
     super('polyglotte');
@@ -98,6 +111,12 @@ export class PolyglotteDatabase extends Dexie {
       logs: '++id, cardId, language, reviewedAt, [language+reviewedAt]',
       days: 'key, day, language, [language+day]',
       settings: 'id',
+    });
+
+    // Version 2 : les dialogues. Dexie conserve les tables existantes, donc
+    // aucune progression n'est perdue à la montée de version.
+    this.version(2).stores({
+      dialogues: 'id, language, lastSeenAt, [language+lastSeenAt]',
     });
   }
 }

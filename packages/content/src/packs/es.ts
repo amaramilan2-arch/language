@@ -10,6 +10,7 @@
 
 import { lesson, p, pack, s, unit, w } from '../schema.js';
 import type { ContentPack } from '@polyglotte/core';
+import { ES_DIALOGUES } from '../dialogues/es.js';
 
 export const ES: ContentPack = pack({
   language: 'es',
@@ -59,7 +60,7 @@ export const ES: ContentPack = pack({
         s('es.s-aprendo', 'Estoy aprendiendo español.', 'J’apprends l’espagnol.'),
         s('es.s-mas-despacio', '¿Puedes hablar más despacio?', 'Peux-tu parler plus lentement ?'),
       ]),
-    ]),
+    ], ES_DIALOGUES['es.u1']),
 
     unit('es.u2', 'Les gens', 'Parler de sa famille et des autres', '👨‍👩‍👧', [
       lesson('es.u2.l1', 'La famille', 'Nommer ses proches', 'A1', [
@@ -110,7 +111,7 @@ export const ES: ContentPack = pack({
         s('es.s-mesa-dos', 'Una mesa para dos, por favor.', 'Une table pour deux, s’il vous plaît.'),
         s('es.s-soy-vegetariano', 'Soy vegetariano.', 'Je suis végétarien.'),
       ]),
-    ]),
+    ], ES_DIALOGUES['es.u3']),
 
     unit('es.u4', 'Se déplacer', 'Trouver son chemin et prendre les transports', '🚉', [
       lesson('es.u4.l1', 'Demander son chemin', 'Ne jamais rester perdu', 'A1', [
@@ -136,7 +137,7 @@ export const ES: ContentPack = pack({
         s('es.s-a-que-hora', '¿A qué hora sale el próximo tren?', 'À quelle heure part le prochain train ?'),
         s('es.s-para-en', '¿Este autobús para en el museo?', 'Est-ce que ce bus s’arrête au musée ?'),
       ]),
-    ]),
+    ], ES_DIALOGUES['es.u4']),
 
     unit('es.u5', 'Le quotidien', 'Chiffres, temps, habitudes', '🕐', [
       lesson('es.u5.l1', 'Compter', 'Les nombres qui servent tous les jours', 'A1', [
@@ -187,6 +188,6 @@ export const ES: ContentPack = pack({
         s('es.s-me-gusta', 'Me gusta mucho.', 'J’aime beaucoup.'),
         s('es.s-no-estoy-seguro', 'No estoy seguro.', 'Je n’en suis pas certain.'),
       ]),
-    ]),
+    ], ES_DIALOGUES['es.u6']),
   ],
 });

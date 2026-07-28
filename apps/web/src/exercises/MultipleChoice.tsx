@@ -104,12 +104,15 @@ export function MultipleChoice({
         ) : (
           <>
             <ItemTarget item={item} profile={profile} showTransliteration={settings.showTransliteration} />
+            {/* Le mot est prononcé dès qu'il s'affiche : c'est une application
+                d'oral, entendre ne doit jamais demander une action. Le bouton
+                ne sert qu'à réécouter. */}
             <AudioButton
               text={item.target}
               profile={profile}
               rate={settings.speechRate}
               size="sm"
-              autoPlay={false}
+              autoPlay={settings.autoPlayAudio}
             />
           </>
         )}

@@ -24,6 +24,39 @@ export function isTtsSupported(): boolean {
   return typeof window !== 'undefined' && 'speechSynthesis' in window;
 }
 
+/**
+ * Déverrouillage de la synthèse vocale.
+ *
+ * Les navigateurs refusent de parler tant que l'utilisateur n'a pas interagi
+ * avec la page : la toute première lecture automatique est avalée sans erreur.
+ * On émet donc un énoncé vide au premier geste, ce qui débloque le moteur pour
+ * le reste de la session. Sans cela, le mot d'ouverture de chaque session reste
+ * muet — exactement le défaut qui donne l'impression qu'il faut cliquer.
+ */
+let unlocked = false;
+
+export function unlockSpeech(): void {
+  if (unlocked || !isTtsSupported()) return;
+  unlocked = true;
+  try {
+    const primer = new SpeechSynthesisUtterance('');
+    primer.volume = 0;
+    window.speechSynthesis.speak(primer);
+  } catch {
+    // Sans conséquence : au pire la première lecture sera silencieuse.
+  }
+}
+
+export function installSpeechUnlock(): () => void {
+  if (typeof window === 'undefined') return () => {};
+  const handler = () => unlockSpeech();
+  const events: (keyof WindowEventMap)[] = ['pointerdown', 'keydown', 'touchstart'];
+  for (const event of events) window.addEventListener(event, handler, { once: true, passive: true });
+  return () => {
+    for (const event of events) window.removeEventListener(event, handler);
+  };
+}
+
 let voiceCache: SpeechSynthesisVoice[] = [];
 
 /**
@@ -81,6 +114,23 @@ export function pickVoice(lang: string, voices = voiceCache): SpeechSynthesisVoi
 /** Une voix utilisable existe-t-elle pour cette langue ? */
 export function hasVoiceFor(lang: string): boolean {
   return pickVoice(lang) !== null;
+}
+
+/**
+ * La synthèse est-elle acceptable pour cette langue ?
+ *
+ * Le profil fait autorité, et pas seulement la présence d'une voix dans le
+ * système. C'est la leçon de l'arabe tunisien : le repli de `pickVoice` trouve
+ * une voix d'arabe standard pour `ar-TN`, qui lit le derja avec une
+ * prononciation fausse. Entendre une mauvaise prononciation est pire que ne
+ * rien entendre — cela ancre une erreur qu'il faudra ensuite désapprendre.
+ *
+ * Une langue déclarée sans synthèse native reste donc silencieuse jusqu'à ce
+ * que de l'audio enregistré soit disponible.
+ */
+export function canSpeakLanguage(profile: { bcp47: string; hasNativeTts: boolean }): boolean {
+  if (!profile.hasNativeTts) return false;
+  return hasVoiceFor(profile.bcp47);
 }
 
 let currentUtterance: SpeechSynthesisUtterance | null = null;

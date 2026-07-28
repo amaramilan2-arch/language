@@ -16,6 +16,9 @@ import type {
   CefrLevel,
   ContentItem,
   ContentPack,
+  Dialogue,
+  DialogueLine,
+  DialogueQuestion,
   Lesson,
   LanguageCode,
   Skill,
@@ -72,8 +75,42 @@ export function lesson(id: string, title: string, goal: string, level: CefrLevel
   return { id, title, goal, level, items };
 }
 
-export function unit(id: string, title: string, description: string, icon: string, lessons: Lesson[]): Unit {
-  return { id, title, description, icon, lessons };
+export function unit(
+  id: string,
+  title: string,
+  description: string,
+  icon: string,
+  lessons: Lesson[],
+  dialogues?: Dialogue[],
+): Unit {
+  return dialogues?.length ? { id, title, description, icon, lessons, dialogues } : { id, title, description, icon, lessons };
+}
+
+/** Réplique de dialogue. `a` et `b` alternent les tours de parole. */
+export const line = (
+  speaker: 'a' | 'b',
+  target: string,
+  fr: string,
+  translit?: string,
+): DialogueLine => (translit ? { speaker, target, fr, translit } : { speaker, target, fr });
+
+/** Question de compréhension. `answer` est l'index de la bonne réponse. */
+export const question = (
+  id: string,
+  prompt: string,
+  options: string[],
+  answer: number,
+): DialogueQuestion => ({ id, prompt, options, answer });
+
+export function dialogue(
+  id: string,
+  title: string,
+  setting: string,
+  level: CefrLevel,
+  lines: DialogueLine[],
+  questions: DialogueQuestion[],
+): Dialogue {
+  return { id, title, setting, level, lines, questions };
 }
 
 export function pack(pack: ContentPack): ContentPack {
@@ -164,6 +201,45 @@ export function validatePack(candidate: ContentPack): ValidationIssue[] {
     }
   }
 
+  for (const unit of candidate.units) {
+    for (const d of unit.dialogues ?? []) {
+      const path = d.id;
+      if (seenLessonIds.has(d.id)) error(path, 'Identifiant de dialogue en double.');
+      seenLessonIds.add(d.id);
+
+      if (d.lines.length < 2) error(path, 'Un dialogue doit compter au moins deux répliques.');
+      if (d.lines.length > 8) {
+        warn(path, `Dialogue trop long (${d.lines.length} répliques, 8 maximum conseillé).`);
+      }
+      if (d.questions.length === 0) {
+        error(path, 'Un dialogue sans question ne teste aucune compréhension.');
+      }
+
+      for (const l of d.lines) {
+        if (!l.target.trim()) error(path, 'Réplique vide.');
+        if (!l.fr.trim()) error(path, 'Réplique sans traduction française.');
+        if (candidate.profile.needsTransliteration && !l.translit) {
+          error(path, 'Translittération obligatoire sur chaque réplique pour cette langue.');
+        }
+      }
+
+      // Les deux interlocuteurs doivent parler : sinon c'est un monologue,
+      // et l'exercice perd ce qui fait la difficulté d'une conversation.
+      const speakers = new Set(d.lines.map((l) => l.speaker));
+      if (speakers.size < 2) warn(path, 'Un seul interlocuteur : ce n’est pas un dialogue.');
+
+      for (const q of d.questions) {
+        if (q.options.length < 2) error(q.id, 'Une question doit proposer au moins deux réponses.');
+        if (q.answer < 0 || q.answer >= q.options.length) {
+          error(q.id, 'L’index de la bonne réponse sort des options proposées.');
+        }
+        if (new Set(q.options.map((o) => o.trim().toLocaleLowerCase())).size !== q.options.length) {
+          error(q.id, 'Deux réponses identiques sont proposées.');
+        }
+      }
+    }
+  }
+
   for (const [french, ids] of byFrench) {
     if (ids.length > 1) {
       warn(
@@ -174,6 +250,11 @@ export function validatePack(candidate: ContentPack): ValidationIssue[] {
   }
 
   return issues;
+}
+
+/** Tous les dialogues d'un pack, à plat. */
+export function allDialogues(candidate: ContentPack): Dialogue[] {
+  return candidate.units.flatMap((u) => u.dialogues ?? []);
 }
 
 /** Tous les éléments d'un pack, à plat. */

@@ -102,6 +102,52 @@ export interface Lesson {
   items: ContentItem[];
 }
 
+/**
+ * Une réplique de dialogue.
+ *
+ * `speaker` sert à alterner visuellement les tours de parole ; savoir qui parle
+ * est la moitié de la compréhension d'un échange.
+ */
+export interface DialogueLine {
+  speaker: 'a' | 'b';
+  /** Réplique dans la langue cible. */
+  target: string;
+  /** Translittération latine (arabe tunisien). */
+  translit?: string;
+  fr: string;
+}
+
+/** Question de compréhension portant sur un dialogue. */
+export interface DialogueQuestion {
+  id: string;
+  /** Question posée en français : on teste la compréhension, pas la lecture. */
+  prompt: string;
+  /** Réponses proposées, en français. */
+  options: string[];
+  /** Index de la bonne réponse dans `options`. */
+  answer: number;
+}
+
+/**
+ * Un dialogue : un échange court dans une situation concrète.
+ *
+ * Comble le manque le plus criant du vocabulaire isolé — savoir cent mots ne
+ * permet pas de suivre une conversation, où le sens naît de l'enchaînement des
+ * répliques, du contexte et de ce qui n'est pas dit. On écoute d'abord sans
+ * lire, puis on répond à des questions de compréhension : c'est l'exercice qui
+ * ressemble le plus à une conversation réelle.
+ */
+export interface Dialogue {
+  id: string;
+  /** Situation, formulée côté apprenant : « Commander au café ». */
+  title: string;
+  /** Contexte posé en une phrase, pour orienter l'écoute. */
+  setting: string;
+  level: CefrLevel;
+  lines: DialogueLine[];
+  questions: DialogueQuestion[];
+}
+
 /** Une unité thématique regroupant plusieurs leçons. */
 export interface Unit {
   id: string;
@@ -109,6 +155,11 @@ export interface Unit {
   description: string;
   icon: string;
   lessons: Lesson[];
+  /**
+   * Dialogues de l'unité, débloqués une fois son vocabulaire rencontré.
+   * Facultatif : une unité sans dialogue reste parfaitement valide.
+   */
+  dialogues?: Dialogue[];
 }
 
 /** Un pack de contenu : tout ce qui est apprenable dans une langue. */
@@ -197,6 +248,7 @@ export const EXERCISE_KINDS = [
   'buildSentence',
   'speakRepeat',
   'matchPairs',
+  'dialogue',
 ] as const;
 export type ExerciseKind = (typeof EXERCISE_KINDS)[number];
 
@@ -209,6 +261,7 @@ export const EXERCISE_LABELS: Record<ExerciseKind, string> = {
   buildSentence: 'Reconstituer la phrase',
   speakRepeat: 'Répéter à voix haute',
   matchPairs: 'Associer les paires',
+  dialogue: 'Comprendre un dialogue',
 };
 
 /** Compétence évaluée par chaque type d'exercice. */
@@ -221,4 +274,5 @@ export const EXERCISE_SKILL: Record<ExerciseKind, Skill> = {
   buildSentence: 'produce',
   speakRepeat: 'speak',
   matchPairs: 'recognize',
+  dialogue: 'listen',
 };

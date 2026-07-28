@@ -9,6 +9,7 @@
 
 import { lesson, p, pack, s, unit, w } from '../schema.js';
 import type { ContentPack } from '@polyglotte/core';
+import { EN_DIALOGUES } from '../dialogues/en.js';
 
 export const EN: ContentPack = pack({
   language: 'en',
@@ -60,7 +61,7 @@ export const EN: ContentPack = pack({
           note: 'La phrase la plus utile du pack : elle sauve toutes les conversations.',
         }),
       ]),
-    ]),
+    ], EN_DIALOGUES['en.u1']),
 
     unit('en.u2', 'Les gens', 'Parler de sa famille et des autres', '👨‍👩‍👧', [
       lesson('en.u2.l1', 'La famille', 'Nommer ses proches', 'A1', [
@@ -111,7 +112,7 @@ export const EN: ContentPack = pack({
         s('en.s-table-two', 'A table for two, please.', 'Une table pour deux, s’il vous plaît.'),
         s('en.s-vegetarian', "I'm vegetarian.", 'Je suis végétarien.'),
       ]),
-    ]),
+    ], EN_DIALOGUES['en.u3']),
 
     unit('en.u4', 'Se déplacer', 'Trouver son chemin et prendre les transports', '🚉', [
       lesson('en.u4.l1', 'Demander son chemin', 'Ne jamais rester perdu', 'A1', [
@@ -137,7 +138,7 @@ export const EN: ContentPack = pack({
         s('en.s-what-time-train', 'What time is the next train?', 'À quelle heure est le prochain train ?'),
         s('en.s-does-stop', 'Does this bus stop at the museum?', 'Est-ce que ce bus s’arrête au musée ?'),
       ]),
-    ]),
+    ], EN_DIALOGUES['en.u4']),
 
     unit('en.u5', 'Le quotidien', 'Chiffres, temps, habitudes', '🕐', [
       lesson('en.u5.l1', 'Compter', 'Les nombres qui servent tous les jours', 'A1', [
@@ -188,6 +189,6 @@ export const EN: ContentPack = pack({
         s('en.s-i-like-it', 'I really like it.', 'J’aime vraiment ça.'),
         s('en.s-not-sure', "I'm not sure about that.", 'Je n’en suis pas certain.'),
       ]),
-    ]),
+    ], EN_DIALOGUES['en.u6']),
   ],
 });

@@ -6,7 +6,7 @@ import { LessonsPage } from './pages/LessonsPage.js';
 import { ProgressPage } from './pages/ProgressPage.js';
 import { SessionPage } from './pages/SessionPage.js';
 import { SettingsPage } from './pages/SettingsPage.js';
-import { loadVoices } from './speech/tts.js';
+import { installSpeechUnlock, loadVoices } from './speech/tts.js';
 
 type Tab = 'home' | 'lessons' | 'progress' | 'settings';
 
@@ -37,6 +37,10 @@ export function App() {
   // façon asynchrone, et l'obtenir plus tard ferait manquer le premier audio.
   useEffect(() => {
     void loadVoices();
+    // Les navigateurs refusent de parler avant une interaction : on arme un
+    // déblocage sur le premier geste, sans quoi le mot d'ouverture de la
+    // toute première session resterait muet.
+    return installSpeechUnlock();
   }, []);
 
   if (!loaded) {
