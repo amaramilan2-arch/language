@@ -16,13 +16,22 @@ import type {
   QueueProgress,
   SessionEntry,
 } from '@polyglotte/core';
-import { PACKS, defaultOrder, indexItems } from '@polyglotte/content';
+import { PACKS, defaultOrder, indexItems, unlockedDialogues } from '@polyglotte/content';
 import { ExerciseHost, type AnswerResult } from '../exercises/index.js';
+import { DialogueExercise } from '../exercises/DialogueExercise.js';
 import { ProgressBar, Stat, formatDuration } from '../components/ui.js';
-import { loadMemories, pendingNewItems, recordReview } from '../db/repository.js';
-import { hasVoiceFor, loadVoices } from '../speech/tts.js';
+import {
+  loadDialogueRecords,
+  loadMemories,
+  pendingNewItems,
+  recordDialogue,
+  recordReview,
+  seenItemIds,
+} from '../db/repository.js';
+import { canSpeakLanguage, loadVoices } from '../speech/tts.js';
 import { hasMicrophonePermission, isAsrSupported } from '../speech/asr.js';
 import type { Settings } from '../db/database.js';
+import type { Dialogue } from '@polyglotte/core';
 
 interface SessionPageProps {
   language: LanguageCode;
@@ -35,9 +44,11 @@ interface SessionSummary {
   total: number;
   newCards: number;
   durationMs: number;
+  /** Renseigné si la session s'est close sur un dialogue. */
+  dialogue?: { correct: number; total: number; title: string };
 }
 
-type Status = 'loading' | 'running' | 'done' | 'empty';
+type Status = 'loading' | 'running' | 'dialogue' | 'done' | 'empty';
 
 export function SessionPage({ language, settings, onFinish }: SessionPageProps) {
   const [status, setStatus] = useState<Status>('loading');
@@ -50,6 +61,15 @@ export function SessionPage({ language, settings, onFinish }: SessionPageProps) 
     incorrect: 0,
   });
   const [summary, setSummary] = useState<SessionSummary | null>(null);
+  /**
+   * Dialogue proposé en clôture de session.
+   *
+   * Placé à la fin et non au milieu : un dialogue demande une attention
+   * continue de plusieurs minutes, incompatible avec le rythme rapide des
+   * cartes. En faire la récompense de fin de session lui donne sa place — et
+   * donne une raison concrète d'aller au bout.
+   */
+  const [dialogue, setDialogue] = useState<Dialogue | null>(null);
 
   const queueRef = useRef<SessionQueue | null>(null);
   const memoriesRef = useRef<Map<string, CardMemory>>(new Map());
@@ -86,16 +106,31 @@ export function SessionPage({ language, settings, onFinish }: SessionPageProps) 
       const micAllowed = await hasMicrophonePermission();
 
       const capabilities: Capabilities = {
-        canPlayAudio: hasVoiceFor(pack.profile.bcp47),
+        canPlayAudio: canSpeakLanguage(pack.profile),
         canRecognizeSpeech: isAsrSupported() && pack.profile.hasNativeAsr,
         hasMicrophone: micAllowed,
       };
 
-      const [memories, pending] = await Promise.all([
+      const [memories, pending, seen, dialogueRecords] = await Promise.all([
         loadMemories(language),
         pendingNewItems(language, defaultOrder(pack)),
+        seenItemIds(language),
+        loadDialogueRecords(language),
       ]);
       if (cancelled) return;
+
+      // On privilégie un dialogue jamais fait ; à défaut, le plus ancien, pour
+      // que la révision d'un échange déjà vu reste possible sans monopoliser.
+      const available = unlockedDialogues(language, seen);
+      const nextDialogue =
+        available.find((d) => !dialogueRecords.has(d.id)) ??
+        [...available].sort(
+          (a, b) =>
+            (dialogueRecords.get(a.id)?.lastSeenAt ?? 0) -
+            (dialogueRecords.get(b.id)?.lastSeenAt ?? 0),
+        )[0] ??
+        null;
+      setDialogue(nextDialogue);
 
       memoriesRef.current = memories;
 
@@ -174,7 +209,7 @@ export function SessionPage({ language, settings, onFinish }: SessionPageProps) 
         memory: outcome.memory,
         item: items.get(current.itemId),
         capabilities: {
-          canPlayAudio: hasVoiceFor(pack.profile.bcp47),
+          canPlayAudio: canSpeakLanguage(pack.profile),
           canRecognizeSpeech: isAsrSupported() && pack.profile.hasNativeAsr,
           hasMicrophone: true,
         },
@@ -193,13 +228,14 @@ export function SessionPage({ language, settings, onFinish }: SessionPageProps) 
           newCards: newCardsRef.current,
           durationMs: Date.now() - startedAtRef.current,
         });
-        setStatus('done');
         setEntry(null);
+        // Les cartes sont finies : place au dialogue s'il y en a un de débloqué.
+        setStatus(dialogue ? 'dialogue' : 'done');
         return;
       }
       setEntry(next);
     },
-    [items, language, pack.profile, schedulerConfig],
+    [dialogue, items, language, pack.profile, schedulerConfig],
   );
 
   // --- Rendu ----------------------------------------------------------------
@@ -230,6 +266,31 @@ export function SessionPage({ language, settings, onFinish }: SessionPageProps) 
     );
   }
 
+  if (status === 'dialogue' && dialogue) {
+    return (
+      <div className="page">
+        <DialogueExercise
+          dialogue={dialogue}
+          profile={pack.profile}
+          settings={settings}
+          onFinish={(result) => {
+            void recordDialogue(
+              dialogue.id,
+              language,
+              result.correct,
+              result.total,
+              Date.now(),
+            );
+            setSummary((current) =>
+              current ? { ...current, dialogue: { ...result, title: dialogue.title } } : current,
+            );
+            setStatus('done');
+          }}
+        />
+      </div>
+    );
+  }
+
   if (status === 'done' && summary) {
     const accuracy = summary.total === 0 ? 0 : Math.round((summary.correct / summary.total) * 100);
     return (
@@ -244,6 +305,20 @@ export function SessionPage({ language, settings, onFinish }: SessionPageProps) 
           <Stat value={summary.newCards} label="nouveaux éléments" />
           <Stat value={formatDuration(summary.durationMs)} label="de pratique" />
         </div>
+        {summary.dialogue ? (
+          <div className="card stack stack--tight">
+            <div className="row row--between">
+              <strong>Dialogue : {summary.dialogue.title}</strong>
+              <span className="badge badge--accent">
+                {summary.dialogue.correct}/{summary.dialogue.total}
+              </span>
+            </div>
+            <p className="muted">
+              Comprendre un échange complet est la compétence la plus proche d’une conversation
+              réelle — et celle qui progresse le plus lentement. Chaque dialogue compte.
+            </p>
+          </div>
+        ) : null}
         <p className="muted center">
           {accuracy >= 85
             ? 'Excellent. Les intervalles s’allongent : vous en verrez moins demain, et c’est le signe que ça tient.'

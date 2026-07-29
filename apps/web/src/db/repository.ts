@@ -9,7 +9,7 @@
 import type { CardMemory, LanguageCode, Rating, ReviewLog, Skill } from '@polyglotte/core';
 import { cardId, createMemory, review } from '@polyglotte/core';
 import type { ExerciseKind, SchedulerConfig } from '@polyglotte/core';
-import { db, dayRecordKey, type DayRecord, type StoredMemory } from './database.js';
+import { db, dayRecordKey, type DayRecord, type DialogueRecord, type StoredMemory } from './database.js';
 import { dayKey } from '@polyglotte/core';
 
 /** Toutes les mémoires d'une langue, indexées par identifiant de carte. */
@@ -161,6 +161,41 @@ export async function pendingNewItems(
   return orderedItemIds.filter((id) => !touched.has(id));
 }
 
+/** Identifiants des éléments déjà rencontrés, pour débloquer les dialogues. */
+export async function seenItemIds(language: LanguageCode): Promise<Set<string>> {
+  const rows = await db.memories.where('language').equals(language).toArray();
+  return new Set(rows.filter((row) => row.state !== 'new').map((row) => row.itemId));
+}
+
+export async function loadDialogueRecords(language: LanguageCode): Promise<Map<string, DialogueRecord>> {
+  const rows = await db.dialogues.where('language').equals(language).toArray();
+  return new Map(rows.map((row) => [row.id, row]));
+}
+
+/**
+ * Enregistre le passage sur un dialogue.
+ *
+ * On conserve le *meilleur* score et non le dernier : refaire un dialogue déjà
+ * réussi pour vérifier une tournure ne doit pas dégrader le bilan.
+ */
+export async function recordDialogue(
+  id: string,
+  language: LanguageCode,
+  correct: number,
+  totalQuestions: number,
+  now: number,
+): Promise<void> {
+  const existing = await db.dialogues.get(id);
+  await db.dialogues.put({
+    id,
+    language,
+    attempts: (existing?.attempts ?? 0) + 1,
+    bestCorrect: Math.max(existing?.bestCorrect ?? 0, correct),
+    totalQuestions,
+    lastSeenAt: now,
+  });
+}
+
 // --------------------------------------------------------------------------
 // Sauvegarde
 // --------------------------------------------------------------------------
@@ -254,9 +289,10 @@ export async function importBackup(backup: BackupFile): Promise<{ merged: number
 
 /** Efface toute la progression. Réservé aux réglages, avec confirmation. */
 export async function resetAll(): Promise<void> {
-  await db.transaction('rw', db.memories, db.logs, db.days, async () => {
+  await db.transaction('rw', db.memories, db.logs, db.days, db.dialogues, async () => {
     await db.memories.clear();
     await db.logs.clear();
     await db.days.clear();
+    await db.dialogues.clear();
   });
 }

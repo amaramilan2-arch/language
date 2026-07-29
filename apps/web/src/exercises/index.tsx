@@ -41,6 +41,12 @@ export function ExerciseHost({ kind, memory, ...props }: ExerciseHostProps) {
       return <SpeakRepeat {...props} />;
     case 'matchPairs':
       return <MultipleChoice {...props} mode="recognize" />;
+    case 'dialogue':
+      // Un dialogue ne porte pas sur un élément isolé : il constitue une étape
+      // à part de la session, rendue par `DialogueExercise` en amont de cet
+      // aiguillage. Le planificateur d'éléments ne produit donc jamais ce cas ;
+      // il n'existe ici que pour rester exhaustif et pour la journalisation.
+      return <Flashcard {...props} memory={memory} />;
     default: {
       const _exhaustive: never = kind;
       void _exhaustive;

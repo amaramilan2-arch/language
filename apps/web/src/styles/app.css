@@ -14,16 +14,19 @@
  */
 
 :root {
-  --bg: #1a1b26;
-  --bg-raised: #212232;
-  --bg-overlay: #2a2b3d;
-  --border: #32344a;
-  --text: #c8cce0;
-  --text-strong: #eceff4;
-  --text-muted: #7f86a3;
+  /* Fond légèrement plus profond et surfaces mieux détachées : l'ancienne
+     palette était trop plate, tout se confondait et rien ne guidait l'œil. */
+  --bg: #14151f;
+  --bg-raised: #1e2030;
+  --bg-overlay: #2b2e42;
+  --border: #363954;
+  --text: #ccd0e6;
+  --text-strong: #f2f4fa;
+  --text-muted: #868da8;
 
-  --accent: #7aa2f7;
-  --accent-strong: #9ab8ff;
+  /* Accent plus saturé, qui tient comme couleur d'action. */
+  --accent: #7c9cff;
+  --accent-strong: #9fb6ff;
   --success: #7bd88f;
   --success-bg: rgba(123, 216, 143, 0.12);
   --warning: #e0af68;
@@ -31,10 +34,11 @@
   --danger: #f38ba8;
   --danger-bg: rgba(243, 139, 168, 0.12);
 
-  --radius: 14px;
-  --radius-sm: 9px;
+  --radius: 18px;
+  --radius-sm: 12px;
   --gap: 16px;
-  --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
 
   --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-arabic: 'Noto Naskh Arabic', 'Geeza Pro', 'Segoe UI', serif;
@@ -52,15 +56,16 @@
     --text: #333a52;
     --text-strong: #171a26;
     --text-muted: #6b7290;
-    --accent: #3c5fd4;
-    --accent-strong: #2b47ad;
+    --accent: #3a5ccc;
+    --accent-strong: #2a45a8;
     --success: #2f8f4e;
     --success-bg: rgba(47, 143, 78, 0.1);
     --warning: #a86c12;
     --warning-bg: rgba(168, 108, 18, 0.1);
     --danger: #c2405f;
     --danger-bg: rgba(194, 64, 95, 0.1);
-    --shadow: 0 6px 18px rgba(20, 25, 50, 0.08);
+    --shadow: 0 8px 24px rgba(20, 25, 50, 0.1);
+    --shadow-sm: 0 1px 4px rgba(20, 25, 50, 0.06);
     color-scheme: light;
   }
 }
@@ -94,8 +99,8 @@ h3 {
   line-height: 1.25;
   margin: 0;
 }
-h1 { font-size: 1.6rem; }
-h2 { font-size: 1.2rem; }
+h1 { font-size: 1.75rem; letter-spacing: -0.02em; }
+h2 { font-size: 1.25rem; letter-spacing: -0.01em; }
 h3 { font-size: 1rem; }
 
 button {
@@ -165,6 +170,7 @@ button {
 .nav__item[aria-current='page'] {
   color: var(--accent);
   background: var(--bg-overlay);
+  font-weight: 600;
 }
 .nav__icon { font-size: 1.15rem; line-height: 1; }
 
@@ -175,6 +181,15 @@ button {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: var(--gap);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Carte d'action principale de l'accueil : c'est elle qu'on doit voir en
+   entrant, et elle seule. */
+.card--hero {
+  background: linear-gradient(150deg, var(--bg-raised), var(--bg-overlay));
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  box-shadow: var(--shadow);
 }
 
 .card--interactive {
@@ -220,7 +235,8 @@ button {
 .btn--primary {
   background: var(--accent);
   border-color: var(--accent);
-  color: #10121c;
+  color: #0e1020;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 .btn--success { background: var(--success); border-color: var(--success); color: #0d1a12; }
 .btn--danger { background: var(--danger); border-color: var(--danger); color: #1c0d13; }
@@ -468,6 +484,62 @@ button {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.07); }
 }
+
+/* --- Dialogues ---------------------------------------------------------- */
+
+.dialogue-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.prompt--listen { gap: 18px; }
+
+/* Points figurant les répliques : donne à voir la longueur de l'échange et la
+   progression de l'écoute, sans révéler le texte. */
+.dialogue-bubbles { display: flex; gap: 7px; }
+
+.bubble-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.bubble-dot--a { border-color: var(--accent); }
+.bubble-dot--b { border-color: var(--success); }
+.bubble-dot--active { transform: scale(1.5); background: var(--accent); }
+
+.script { display: flex; flex-direction: column; gap: 10px; }
+
+.script__line { display: flex; }
+.script__line--a { justify-content: flex-start; }
+.script__line--b { justify-content: flex-end; }
+
+.script__bubble {
+  max-width: 85%;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  text-align: left;
+  transition: border-color 0.15s ease;
+}
+.script__line--a .script__bubble { border-bottom-left-radius: 5px; }
+.script__line--b .script__bubble {
+  border-bottom-right-radius: 5px;
+  background: var(--bg-overlay);
+}
+.script__bubble:not(:disabled):hover { border-color: var(--accent); }
+.script__line--active .script__bubble { border-color: var(--accent); }
+
+.script__fr { color: var(--text-muted); font-size: 0.875rem; margin-top: 4px; }
+
+/* Réponse sélectionnée mais pas encore validée. */
+.choice--picked { border-color: var(--accent); background: rgba(124, 156, 255, 0.1); }
 
 /* --- Statistiques ------------------------------------------------------- */
 

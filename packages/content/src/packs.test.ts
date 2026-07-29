@@ -11,7 +11,7 @@
 import { describe, expect, it } from 'vitest';
 import { LANGUAGES } from '@polyglotte/core';
 import { PACKS, PACK_ORDER } from './index.js';
-import { allItems, countItems, defaultOrder, indexItems, validatePack } from './schema.js';
+import { allDialogues, allItems, countItems, defaultOrder, indexItems, validatePack } from './schema.js';
 
 describe('couverture des langues', () => {
   it('fournit un pack pour chaque langue annoncée', () => {
@@ -102,6 +102,55 @@ describe.each(PACK_ORDER)('pack « %s »', (language) => {
   });
 });
 
+describe.each(PACK_ORDER)('dialogues de « %s »', (language) => {
+  const dialogues = allDialogues(PACKS[language]);
+
+  it('en propose plusieurs', () => {
+    // Savoir des mots ne permet pas de suivre une conversation : sans dialogue,
+    // il manque exactement la compétence que le projet vise.
+    expect(dialogues.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it('met en scène deux interlocuteurs qui se répondent', () => {
+    for (const d of dialogues) {
+      const speakers = new Set(d.lines.map((l) => l.speaker));
+      expect(speakers.size, `${d.id} n’a qu’un seul interlocuteur`).toBe(2);
+      expect(d.lines.length).toBeGreaterThanOrEqual(4);
+      expect(d.lines.length).toBeLessThanOrEqual(8);
+    }
+  });
+
+  it('pose des questions de compréhension exploitables', () => {
+    for (const d of dialogues) {
+      expect(d.questions.length, d.id).toBeGreaterThanOrEqual(2);
+      for (const q of d.questions) {
+        expect(q.options.length, q.id).toBeGreaterThanOrEqual(2);
+        expect(q.answer).toBeGreaterThanOrEqual(0);
+        expect(q.answer).toBeLessThan(q.options.length);
+        // Deux options identiques rendraient la question insoluble.
+        expect(new Set(q.options).size, q.id).toBe(q.options.length);
+      }
+    }
+  });
+
+  it('traduit chaque réplique et pose un contexte', () => {
+    for (const d of dialogues) {
+      expect(d.setting.trim(), d.id).not.toBe('');
+      expect(d.title.trim(), d.id).not.toBe('');
+      for (const l of d.lines) {
+        expect(l.target.trim(), d.id).not.toBe('');
+        expect(l.fr.trim(), d.id).not.toBe('');
+      }
+    }
+  });
+
+  it('utilise des identifiants uniques et préfixés', () => {
+    const ids = dialogues.map((d) => d.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const id of ids) expect(id.startsWith(`${language}.`)).toBe(true);
+  });
+});
+
 describe('arabe tunisien', () => {
   const aeb = PACKS.aeb;
 
@@ -122,6 +171,16 @@ describe('arabe tunisien', () => {
     // ne pas produire d'exercice d'écoute qui resterait muet.
     expect(aeb.profile.hasNativeTts).toBe(false);
     expect(aeb.profile.hasNativeAsr).toBe(false);
+  });
+
+  it('translittère aussi chaque réplique de dialogue', () => {
+    // Sans synthèse vocale, la translittération est le seul appui pour la
+    // prononciation : elle ne peut pas manquer sur une seule ligne.
+    for (const d of allDialogues(aeb)) {
+      for (const l of d.lines) {
+        expect(l.translit?.trim(), `${d.id} : « ${l.target} »`).toBeTruthy();
+      }
+    }
   });
 
   it('emploie bien le dialecte et non l’arabe standard', () => {

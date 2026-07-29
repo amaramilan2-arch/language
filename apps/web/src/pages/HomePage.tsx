@@ -73,7 +73,7 @@ export function HomePage({ settings, onSelectLanguage, onStartSession }: HomePag
         <Stat value={streak} label={`jour${streak > 1 ? 's' : ''} d’affilée`} />
       </div>
 
-      <div className="card stack">
+      <div className="card card--hero stack">
         <div className="row row--between">
           <div className="row">
             <span style={{ fontSize: '2rem' }}>{activePack.profile.flag}</span>

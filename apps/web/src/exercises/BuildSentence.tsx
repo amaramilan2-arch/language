@@ -49,12 +49,15 @@ export function BuildSentence({ item, profile, settings, seed, onAnswer }: Exerc
 
       <div className="prompt">
         <div className="target target--sm">{item.fr}</div>
+        {/* Entendre la phrase avant de la reconstituer n'est pas une aide
+            excessive : l'exercice porte sur l'ordre des mots, et la mélodie de
+            la phrase est précisément l'indice qu'un natif utilise. */}
         <AudioButton
           text={item.target}
           profile={profile}
           rate={settings.speechRate}
           size="sm"
-          autoPlay={false}
+          autoPlay={settings.autoPlayAudio}
         />
       </div>
 

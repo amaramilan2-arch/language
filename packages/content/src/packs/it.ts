@@ -10,6 +10,7 @@
 
 import { lesson, p, pack, s, unit, w } from '../schema.js';
 import type { ContentPack } from '@polyglotte/core';
+import { IT_DIALOGUES } from '../dialogues/it.js';
 
 export const IT: ContentPack = pack({
   language: 'it',
@@ -59,7 +60,7 @@ export const IT: ContentPack = pack({
         s('it.s-imparo', 'Sto imparando l’italiano.', 'J’apprends l’italien.'),
         s('it.s-piu-lentamente', 'Puoi parlare più lentamente?', 'Peux-tu parler plus lentement ?'),
       ]),
-    ]),
+    ], IT_DIALOGUES['it.u1']),
 
     unit('it.u2', 'Les gens', 'Parler de sa famille et des autres', '👨‍👩‍👧', [
       lesson('it.u2.l1', 'La famille', 'Nommer ses proches', 'A1', [
@@ -109,7 +110,7 @@ export const IT: ContentPack = pack({
         s('it.s-tavolo-due', 'Un tavolo per due, per favore.', 'Une table pour deux, s’il vous plaît.'),
         s('it.s-vegetariano', 'Sono vegetariano.', 'Je suis végétarien.'),
       ]),
-    ]),
+    ], IT_DIALOGUES['it.u3']),
 
     unit('it.u4', 'Se déplacer', 'Trouver son chemin et prendre les transports', '🚉', [
       lesson('it.u4.l1', 'Demander son chemin', 'Ne jamais rester perdu', 'A1', [
@@ -134,7 +135,7 @@ export const IT: ContentPack = pack({
         s('it.s-a-che-ora', 'A che ora parte il prossimo treno?', 'À quelle heure part le prochain train ?'),
         s('it.s-si-ferma', 'Questo autobus si ferma al museo?', 'Est-ce que ce bus s’arrête au musée ?'),
       ]),
-    ]),
+    ], IT_DIALOGUES['it.u4']),
 
     unit('it.u5', 'Le quotidien', 'Chiffres, temps, habitudes', '🕐', [
       lesson('it.u5.l1', 'Compter', 'Les nombres qui servent tous les jours', 'A1', [
@@ -184,6 +185,6 @@ export const IT: ContentPack = pack({
         s('it.s-mi-piace', 'Mi piace molto.', 'J’aime beaucoup.'),
         s('it.s-non-sono-sicuro', 'Non sono sicuro.', 'Je n’en suis pas certain.'),
       ]),
-    ]),
+    ], IT_DIALOGUES['it.u6']),
   ],
 });

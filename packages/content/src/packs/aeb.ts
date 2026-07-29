@@ -26,6 +26,7 @@
 
 import { lesson, p, pack, s, unit, w } from '../schema.js';
 import type { ContentPack } from '@polyglotte/core';
+import { AEB_DIALOGUES } from '../dialogues/aeb.js';
 
 export const AEB: ContentPack = pack({
   language: 'aeb',
@@ -77,7 +78,7 @@ export const AEB: ContentPack = pack({
         s('aeb.s-net3allem', 'نتعلّم في التونسي.', 'J’apprends le tunisien.', { tr: 'net3allem fit-tounsi.' }),
         s('aeb.s-a7ki-bechwaya', 'أحكي بالشويّة من فضلك.', 'Parle doucement, s’il te plaît.', { tr: 'a7ki bech-chwaya min fadhlek.', note: 'La phrase à retenir en priorité : le tunisien se parle vite.' }),
       ]),
-    ]),
+    ], AEB_DIALOGUES['aeb.u1']),
 
     unit('aeb.u2', 'Les gens', 'Parler de sa famille et des autres', '👨‍👩‍👧', [
       lesson('aeb.u2.l1', 'La famille', 'Nommer ses proches', 'A1', [
@@ -128,7 +129,7 @@ export const AEB: ContentPack = pack({
         w('aeb.kosksi', 'كسكسي', 'couscous', { tr: 'kosksi', pos: 'noun', gender: 'm', note: 'Le plat du vendredi midi, servi en famille.' }),
         s('aeb.s-mekla-bnina', 'الماكلة بنينة برشا.', 'La nourriture est très bonne.', { tr: 'el-mèkla bnina barcha.' }),
       ]),
-    ]),
+    ], AEB_DIALOGUES['aeb.u3']),
 
     unit('aeb.u4', 'Se déplacer', 'Trouver son chemin et prendre les transports', '🚉', [
       lesson('aeb.u4.l1', 'Demander son chemin', 'Ne jamais rester perdu', 'A1', [
@@ -154,7 +155,7 @@ export const AEB: ContentPack = pack({
         s('aeb.s-9addech-teksi', 'قدّاش التاكسي للمطار؟', 'Combien coûte le taxi pour l’aéroport ?', { tr: '9addèch et-tèksi lil-matar ?' }),
         s('aeb.s-wa99efli', 'وقّفلي هوني من فضلك.', 'Arrêtez-moi ici, s’il vous plaît.', { tr: 'wa99efli houni min fadhlek.' }),
       ]),
-    ]),
+    ], AEB_DIALOGUES['aeb.u4']),
 
     unit('aeb.u5', 'Le quotidien', 'Chiffres, temps, habitudes', '🕐', [
       lesson('aeb.u5.l1', 'Compter', 'Les nombres qui servent tous les jours', 'A1', [
@@ -205,6 +206,6 @@ export const AEB: ContentPack = pack({
         s('aeb.s-ya3jebni', 'يعجبني برشا.', 'Ça me plaît beaucoup.', { tr: 'ya3jebni barcha.' }),
         s('aeb.s-manich-mtakked', 'ما نيش متأكّد.', 'Je ne suis pas sûr.', { tr: 'manich mtakked.' }),
       ]),
-    ]),
+    ], AEB_DIALOGUES['aeb.u6']),
   ],
 });

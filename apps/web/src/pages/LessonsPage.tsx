@@ -152,6 +152,8 @@ function LessonBlock({
             <div className="muted">{item.fr}</div>
             {item.note ? <div className="note" style={{ marginTop: 6 }}>{item.note}</div> : null}
           </div>
+          {/* Jamais de lecture automatique ici : la page liste des dizaines
+              d'éléments, qui se mettraient tous à parler en même temps. */}
           <AudioButton
             text={item.target}
             profile={profile}

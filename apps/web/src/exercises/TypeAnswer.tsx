@@ -104,12 +104,14 @@ export function TypeAnswer({ item, profile, settings, mode, onAnswer }: TypeAnsw
         <div className={`feedback ${result.accepted ? 'feedback--correct' : 'feedback--wrong'}`}>
           <div className="row row--between">
             <strong>{result.accepted ? 'Correct' : 'Pas tout à fait'}</strong>
+            {/* La réponse vient d'être révélée : on la prononce aussitôt, pour
+                associer la forme écrite au son pendant qu'elle est sous les yeux. */}
             <AudioButton
               text={item.target}
               profile={profile}
               rate={settings.speechRate}
               size="sm"
-              autoPlay={false}
+              autoPlay={settings.autoPlayAudio}
             />
           </div>
           <div style={{ marginTop: 8 }}>
